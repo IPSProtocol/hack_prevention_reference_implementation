@@ -20,3 +20,6 @@ ignition/deployments/chain-31337
 .env
 
 package-lock.json
+
+scripts/nft-reentrancy/verify_contract_backup.js
+scripts/nft-reentrancy/verify_contract.js
