@@ -53,13 +53,13 @@ PRIVATE_KEY=XXXXX
 - IPSCHAIN_USERNAME and IPSCHAIN_PASSWORD should be provided by the **IPSChain team**
 - PRIVATE_KEY should be the private key of a wallet you'll be using for testing IPSChain. The **IPSChain team** will send you gas tokens.
 
-![Hardhat Config](image-1.png)
+![Hardhat Config](./images/hardhat_conf_env.png)
 
 #### IPSChain Configuration
 
 1. Add the IPSChain Configuration in hardhat config file: ```hardhat.config.js```:
 
-![IPSChain configuration](network_configuration.png)
+![IPSChain configuration](./images/network_configuration.png)
 
 ### Running Scenarios
 
@@ -120,6 +120,6 @@ After obtaining your chain credentials, You could setup your metamask wallet to 
 https://USENAME:PASSWORD@ipschain.ipsprotocol.xyz
 ```
 
-ChainId: 8337 
+ChainId: 8337  
 
-![IPSChain Metamask Setup](image.png)
+![IPSChain Metamask Setup](./images/wallet_conf.png)
