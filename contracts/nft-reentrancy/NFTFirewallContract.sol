@@ -8,7 +8,7 @@ import "../TransactionEventsLib.sol";
 /// @author theexoticman
 /// @notice It protects a specific smart contract from hacks. Check IPSChain RC #2 for more details
 /// @dev define your security tests in the runSecurityChecks function that is automatically trigger after the transaction ends.
-contract NFTFirewallContract{    
+contract NFTFirewallContract is IPSFirewall{    
     
     constructor(){}
     // 79c46aa1e9414f1ec17fe2ddf0a792ed052464f117504d03be80e05734ce37c8
@@ -24,7 +24,7 @@ contract NFTFirewallContract{
     /// @param contractAddr the actual address of the  contract it is portecting - the SafeNFT, in its the post-tx state. 
     /// @param events The events and parameters emitted during the transaction by the contract this firewall is protecting (SafeNFT). for more details on data structure, check the TransactionEventsLib.sol
     /// for more details on Firewall Contracts and  our Decentralized Firewall check https://docs.ipsprotocol.xyz
-    function runSecurityChecks(address caller,  address snapshotAddr, address contractAddr,  TransactionEventsLib.EventData[] memory events ) public   {
+    function runSecurityChecks(address caller,  address snapshotAddr, address contractAddr,  TransactionEventsLib.EventData[] memory events ) public  override  {
 
         bytes32 claimedEventSig = TransactionEventsLib.getEventHash("Claimed(address)");
         bytes32 buyEventSig = TransactionEventsLib.getEventHash("Buy(address)");
