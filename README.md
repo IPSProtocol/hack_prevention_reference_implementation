@@ -29,19 +29,20 @@ For each documented exploit, the repository includes the following components:
 **Step 2** Install Hardhat 2.22.3 - [Guide](https://hardhat.org/hardhat-runner/docs/getting-started#installation)
 
 
-**Step 3** - Request IPSChain Team in [Discord](https://discord.gg/k4Q5JspK) or [Telegram](https://t.me/+hSp2Kr_exIc5ZDA0) for:
-1. IPSChain credentials for the RPC Node connectivity   
-2. IPS tokens, by providing your address
+**Step 3** - Contact the IPSChain Team on [Discord](https://discord.gg/k4Q5JspK) or [Telegram](https://t.me/+hSp2Kr_exIc5ZDA0) to request:
+
+1. IPSChain credentials for RPC Node connectivity.
+2. IPS tokens by providing your wallet address.
 
 ### Hardhat Configuration
 
 #### Configuration variables
 
-1. Make sure to create an ```.env``` file in the project root with the following variables.
+1. Ensure that you create an .env file in the project root directory containing the following variables:
 ```bash
 $ touch .env
 ```
-2. Add your variables:
+2. Setup the variables:
 ```
 IPSCHAIN_USERNAME=XXXXX
 IPSCHAIN_PASSWORD=XXXXX

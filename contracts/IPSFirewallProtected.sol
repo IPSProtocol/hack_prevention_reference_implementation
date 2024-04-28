@@ -25,7 +25,7 @@ abstract contract IPSFirewallProtected {
         assembly { // solium-disable-line
             sstore(0xf5db7be7144a933071df54eb1557c996e91cbc47176ea78e1c6f39f9306cff5f, newAddress)
         }
-}
+    }
     
     function getSlot() public view returns (bytes32) {
         return firewallSlot;
