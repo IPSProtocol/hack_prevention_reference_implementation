@@ -13,6 +13,12 @@ module.exports = {
       url: `https://${IPSCHAIN_USERNAME}:${IPSCHAIN_PASSWORD}@ipschain.ipsprotocol.xyz`,
       accounts: [`0x${PRIVATE_KEY}`]
     },
+    local: {
+      url: `http://127.0.0.1:8888`,
+      accounts: [`0x${PRIVATE_KEY}`],
+      timeout: 1800000 // 30 minutes, if applicable for your specific debugging tools or scripts
+
+    },
   },
   etherscan:{
     apiKey:{

@@ -49,7 +49,7 @@ async function main(){
         
         
         nftHack = await NFTHack.connect(wallet).deploy(safeNFT.target);
-        nftHack.waitForDeployment();
+        await nftHack.waitForDeployment();
 
 
         console.log(`Deployed NFTHack address: ${nftHack.target}`);

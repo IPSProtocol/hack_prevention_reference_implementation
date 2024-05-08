@@ -2,7 +2,7 @@
 pragma solidity 0.8.24;
 
 import "./SafeNFT.sol";
-import "../TransactionEventsLib.sol";
+import "../IPSFirewall.sol";
 
 /// @title NFTFirewallContract is used a firewall contract 
 /// @author theexoticman
