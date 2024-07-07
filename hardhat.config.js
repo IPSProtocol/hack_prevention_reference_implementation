@@ -9,12 +9,12 @@ const { IPSCHAIN_USERNAME, IPSCHAIN_PASSWORD, PRIVATE_KEY} = process.env;
 module.exports = {
   solidity: "0.8.24",
   networks: {
-    ipschain: {
+    ipschain_dev: {
       url: `https://${IPSCHAIN_USERNAME}:${IPSCHAIN_PASSWORD}@ipschain.ipsprotocol.xyz`,
       accounts: [`0x${PRIVATE_KEY}`]
     },
     local: {
-      url: `http://127.0.0.1:8888`,
+      url: `http://127.0.0.1:8545`,
       accounts: [`0x${PRIVATE_KEY}`],
       timeout: 1800000 // 30 minutes, if applicable for your specific debugging tools or scripts
 
@@ -22,11 +22,11 @@ module.exports = {
   },
   etherscan:{
     apiKey:{
-      ipschain: "something"
+      ipschain_dev: "something"
     },
     customChains: [
       {
-        network: "ipschain",
+        network: "ipschain_dev",
         chainId: 8337,
         urls: {
           apiURL: "https://explorer.ipsprotocol.xyz/api",
