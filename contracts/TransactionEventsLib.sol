@@ -6,7 +6,7 @@ library TransactionEventsLib {
     struct EventData {
         bytes32 eventSigHash;
         bytes32[] parameters;
-        address msgSender;
+        address caller;
     }
 
     function getEventHash(string memory functionSig) public pure returns (bytes32) {

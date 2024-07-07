@@ -11,17 +11,18 @@ abstract contract IPSFirewallProtected {
 
     bytes32 firewallSlot = 0xf5db7be7144a933071df54eb1557c996e91cbc47176ea78e1c6f39f9306cff5f;
     address owner;
-    constructor(){
+
+    constructor(address newAddress){
         owner = msg.sender;
+        updateFirewallAddress(newAddress);
     }
     /// @notice Updates the address of the firewall contract responsible for the protection of this contract
     /// @dev it checks that the firewall implements the IPSFirewall Contract
     /// @param newAddress the firewall contract new address
-    function updateFirewallAddress(address newAddress) internal onlyOwner{
-        require(
-            bytes32(0xf5db7be7144a933071df54eb1557c996e91cbc47176ea78e1c6f39f9306cff5f) == IPSFirewall(newAddress).IPSProtocolUUID(),
-            "Not compatible"
-        );
+    function updateFirewallAddress(address newAddress) public onlyOwner {
+        bytes32 actualUUID = IPSFirewall(newAddress).IPSProtocolUUID();
+        bytes32 storageSlot = 0xf5db7be7144a933071df54eb1557c996e91cbc47176ea78e1c6f39f9306cff5f;
+        require(storageSlot == actualUUID,"Not compatible");
         assembly { // solium-disable-line
             sstore(0xf5db7be7144a933071df54eb1557c996e91cbc47176ea78e1c6f39f9306cff5f, newAddress)
         }

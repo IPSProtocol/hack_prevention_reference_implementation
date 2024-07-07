@@ -2,7 +2,6 @@
 pragma solidity 0.8.24;
 
 import "./TransactionEventsLib.sol";
-// import "./Mycontract.sol" // import the contract your want to protect so that you can instantiate and compare the snapshot with the current contract.;
 
 abstract contract IPSFirewall {
     
