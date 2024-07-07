@@ -2,6 +2,7 @@ const { ethers } = require("hardhat");
 require('dotenv').config();
 
 const fs = require('fs');
+const { getSigner } = require("@openzeppelin/hardhat-upgrades/dist/utils");
 
 
 async function main() {
@@ -11,7 +12,17 @@ async function main() {
   const nftPrice = 1
 
   const provider = ethers.provider
-  const wallet = await getAccounts(provider)
+  // network name passed by command line
+  const networkName = hre.network.name;
+  let wallet;
+  if (networkName == "hardhat") {
+    [wallet] = await ethers.getSigners()
+
+  }
+  else {
+    wallet = await getAccounts(provider)
+
+  }
 
 
   console.log("1 - Wallet Details")

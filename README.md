@@ -54,6 +54,11 @@ PRIVATE_KEY=XXXXX
 - IPSCHAIN_USERNAME and IPSCHAIN_PASSWORD should be provided by the **IPSChain team**
 - PRIVATE_KEY should be the private key of a wallet you'll be using for testing IPSChain. The **IPSChain team** will send you gas tokens.
 
+The following two variables are used in the run_nft_reentrancy.js file:
+
+- KEYSTORE_PATH: This variable specifies the path to the keystore that you have created locally for your private key.
+- LOCAL_KEYSTORE_PASSWORD: This variable holds the password required to access the keystore and retrieve your private key.
+
 ![Hardhat Config](./images/hardhat_conf_env.png)
 
 #### IPSChain Configuration
