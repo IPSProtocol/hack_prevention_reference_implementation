@@ -9,25 +9,23 @@ contract SafeNFT is ERC721Enumerable,  IPSFirewallProtected {
     uint256 price;
     mapping(address=>bool) public canClaim;
     event Buy(address buyer);
-    event SetSSC(bytes32 storageSlot,address ssc);
-    event Claimed(address buyer);
+    event Claim(address buyer);
 
-    constructor(address firewallAddress ,string memory tokenName, string memory tokenSymbol,uint256 _price) ERC721(tokenName, tokenSymbol) {
-        updateFirewallAddress(firewallAddress);
+    constructor(address firewallAddress ,string memory tokenName, string memory tokenSymbol,uint256 _price) ERC721(tokenName, tokenSymbol) IPSFirewallProtected(firewallAddress) {
         price = _price; //price = 0.01 ETH
     }
 
-    function buyNFT() external payable {
-        require(price==msg.value,"INVALID_VALUE");
+    function buy() external payable {
+        require(price==msg.value,"NOT_ENOUGH_FUNDS");
         canClaim[msg.sender] = true;
         emit Buy(msg.sender);
     }
 
     function claim() external {
-        require(canClaim[msg.sender],"CANT_MINT");
+        require(canClaim[msg.sender],"USER_CANT_MINT_BUY_FIRST");
         _safeMint(msg.sender, totalSupply()); 
         canClaim[msg.sender] = false;
-        emit Claimed(msg.sender);
+        emit Claim(msg.sender);
     }
  
 }
