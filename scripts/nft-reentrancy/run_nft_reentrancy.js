@@ -21,7 +21,6 @@ async function main() {
   }
   else {
     wallet = await getAccounts(provider)
-
   }
 
 
