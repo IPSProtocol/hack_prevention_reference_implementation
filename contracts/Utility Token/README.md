@@ -76,6 +76,7 @@ Tracks user balances and ensures they are modified only through controlled funct
 Key considerations:
 - **Minting**: Ensure users cannot arbitrarily mint tokens to inflate their own balance.
 - **Burning**: Prevent unauthorized token destruction.
+- **Transfer**: Ensure that users can only transfer tokens from their own account and approved accounts and only if they have a sufficient balance to cover the transfer amount. The function should properly revert the transaction if these conditions are not met.
 
 ---
 
@@ -83,7 +84,7 @@ Key considerations:
 Manages user approvals, specifying which addresses can transfer tokens on their behalf and how much.  
 Key considerations:
 - Ensure no unauthorized modifications to user approvals.
-- Limit risks of excessive or unintended approvals.
+- Update the approvals according to users actions. 
 
 
 
