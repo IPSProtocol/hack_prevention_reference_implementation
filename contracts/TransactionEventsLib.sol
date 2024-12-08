@@ -12,7 +12,6 @@ library TransactionEventsLib {
     function getEventHash(string memory functionSig) public pure returns (bytes32) {
         // Event signature and parameter types
            bytes32 hash = keccak256(abi.encodePacked(functionSig));
-        
         return hash;
     }
 

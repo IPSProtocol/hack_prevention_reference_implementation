@@ -65,7 +65,7 @@ Grants another address the right to manage a specified number of tokens on behal
 ## Implementation
 
 **OpenZeppelin** provides a reference implementation and standard contracts that form the foundation for creating your own ERC20 token. You can follow their documentation here:  
-[https://docs.openzeppelin.com/contracts/2.x/erc20](https://docs.openzeppelin.com/contracts/2.x/erc20)
+[https://docs.openzeppelin.com/contracts/5.x/erc20](https://docs.openzeppelin.com/contracts/5.x/erc20)
 
 ---
 
