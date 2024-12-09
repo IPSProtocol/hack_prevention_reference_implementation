@@ -26,7 +26,7 @@ import {IERC20Errors} from "../interfaces/draft-IERC6093.sol";
  * conventional and does not conflict with the expectations of ERC-20
  * applications.
  */
-abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
+abstract contract BLERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     mapping(address account => uint256) private _balances;
 
     mapping(address account => mapping(address spender => uint256)) private _allowances;
@@ -147,8 +147,8 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * `value`.
      */
     function transferFrom(address from, address to, uint256 value) public virtual returns (bool) {
-        address spender = _msgSender();
-        _spendAllowance(from, spender, value); 
+        address spender = _msgSender(); 
+        _spendAllowance(from, spender, value);  
         _transfer(from, to, value); 
         return true;
     }
@@ -164,12 +164,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
     function _transfer(address from, address to, uint256 value) internal {
-        if (from == address(0)) {
-            revert ERC20InvalidSender(address(0));
-        }
-        if (to == address(0)) {
-            revert ERC20InvalidReceiver(address(0));
-        }
         _update(from, to, value);
     }
 
@@ -186,9 +180,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
             _totalSupply += value;
         } else {
             uint256 fromBalance = _balances[from];
-            if (fromBalance < value) {
-                revert ERC20InsufficientBalance(from, fromBalance, value);
-            }
             unchecked {
                 // Overflow not possible: value <= fromBalance <= totalSupply.
                 _balances[from] = fromBalance - value;
@@ -219,9 +210,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * NOTE: This function is not virtual, {_update} should be overridden instead.
      */
     function _mint(address account, uint256 value) internal {
-        if (account == address(0)) {
-            revert ERC20InvalidReceiver(address(0));
-        }
         _update(address(0), account, value);
     }
 
@@ -234,9 +222,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * NOTE: This function is not virtual, {_update} should be overridden instead
      */
     function _burn(address account, uint256 value) internal {
-        if (account == address(0)) {
-            revert ERC20InvalidSender(address(0));
-        }
         _update(account, address(0), value);
     }
 
@@ -278,12 +263,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
      * Requirements are the same as {_approve}.
      */
     function _approve(address owner, address spender, uint256 value, bool emitEvent) internal virtual {
-        if (owner == address(0)) {
-            revert ERC20InvalidApprover(address(0));
-        }
-        if (spender == address(0)) {
-            revert ERC20InvalidSpender(address(0));
-        }
         _allowances[owner][spender] = value;
         if (emitEvent) {
             emit Approval(owner, spender, value);
@@ -301,9 +280,6 @@ abstract contract ERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     function _spendAllowance(address owner, address spender, uint256 value) internal virtual {
         uint256 currentAllowance = allowance(owner, spender);
         if (currentAllowance < type(uint256).max) {
-            if (currentAllowance < value) {
-                revert ERC20InsufficientAllowance(spender, currentAllowance, value);
-            }
             unchecked {
                 _approve(owner, spender, currentAllowance - value, true);
             }
