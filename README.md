@@ -70,6 +70,7 @@ PRIVATE_KEY=XXXXX
 ```
 
 3. Import the variables in the Hardhat configuration file `hardhat.config.js`:
+
 -`SEPOLIA_RPC_URL` enabling RPC connection with SEPOLIA Testnet. Usually setup with Infura or Alchemy.
 
 - `DECENTRALIZE_FIREWALL_USERNAME` and `DECENTRALIZE_FIREWALL_PASSWORD` should be provided by the **Decentralized Firewall Team**.
