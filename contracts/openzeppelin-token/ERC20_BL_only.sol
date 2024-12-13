@@ -26,7 +26,7 @@ import {IERC20Errors} from "../interfaces/draft-IERC6093.sol";
  * conventional and does not conflict with the expectations of ERC-20
  * applications.
  */
-abstract contract BLERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
+abstract contract VulnERC20 is Context, IERC20, IERC20Metadata, IERC20Errors {
     mapping(address account => uint256) private _balances;
 
     mapping(address account => mapping(address spender => uint256)) private _allowances;

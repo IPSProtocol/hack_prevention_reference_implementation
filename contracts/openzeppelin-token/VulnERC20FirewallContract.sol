@@ -1,28 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.24;
 
-import "./MyBLERC20.sol";
+import "./MyVulnERC20.sol";
 import "../IPSFirewall.sol";
 import "../TransactionEventsLib.sol";
 
 /// Reliable Hack Prevention - Firewall contract are for security engineers. business logic contracts are for devs. here security engineers verify that devs implementation follow the specifications using invariant based tests
-/// @title BLERc20FirewallContract is a firewall contract protecting the BLERC20 implementiation which only implements business logic and no security verifications. All security verifications are done here using invariant based approach based on a ERC20 specification.
+/// @title VulnERC20FirewallContract is a firewall contract protecting the VulnERC20 implementiation which only implements business logic and no security verifications. All security verifications are done here using invariant based approach based on a ERC20 specification.
 /// @author theexoticman
-/// @dev for now runSecurityChecks is the entrypoint in the firewall contract.
+/// @dev for now runFirewallContract is the entrypoint in the firewall contract.
 //          This function is automatically trigger after the transaction execution,
 //          only if the contract it protects was modified
 // Assumptions:
 //              - events list appears in the time order
 //              - We assume Events integry and that its logic follow the specs and therefore can be trusted.
 
-contract BLERC20FirewallContract is IPSFirewall {
+contract VulnERC20FirewallContract is IPSFirewall {
     //////////////////////////////////////////////////////////////
-    //            BLERC20 Events Signature Hashes             //
+    //            VulnERC20 Events Signature Hashes             //
     //////////////////////////////////////////////////////////////
 
     // ERC20 Transfer and Approval Event signature
     // They are used to identify the events emitted during the transaction.
-    // All Events emitted by the BLERC20 are passed to the runSecurityChecks function
+    // All Events emitted by the VulnERC20 are passed to the runFirewallContract function
 
     bytes32 erc20TransferEventSig =
         TransactionEventsLib.getEventHash("Transfer(address,address,uint256)");
@@ -32,10 +32,10 @@ contract BLERC20FirewallContract is IPSFirewall {
     //////////////////////////////////////////////////////////////
     //                Invariant State Variables                 //
     //////////////////////////////////////////////////////////////
-
+    event NEWADDR(address addr);
     // supply calculated from the transactions parameters
     uint public _supply = 0;
-    
+
     // ensure sum of all balances are consistent.
     uint public _balancesSum = 0;
 
@@ -80,24 +80,25 @@ contract BLERC20FirewallContract is IPSFirewall {
     //                   Firewall Entrypoint                    //
     //////////////////////////////////////////////////////////////
 
-    /// @notice This function is called by the Decentralized Firewall Engine in the execution client, at the end of the transaction execution if and only if, the contract it is protecting (SafeNFT) is modified.
+    /// @notice This function is called by the Decentralized Firewall Engine in the execution client, at the end of the transaction execution if and only if, the contract it is protecting (VulnNFT) is modified.
     /// @dev implement the logic that analyze how your contract behaved
     /// @param caller the EOA who started the call, mostly unused for now.
     /// @param snapshotAddr the address of the snapshot contract, in the same state it was a the beginning of the transacton.
-    /// @param contractAddr the actual address of the  contract it is portecting - the SafeNFT, in its the post-tx state.
-    /// @param events The events and parameters emitted during the transaction by the contract this firewall is protecting (SafeNFT). for more details on data structure, check the TransactionEventsLib.sol
+    /// @param contractAddr the actual address of the  contract it is portecting - the VulnNFT, in its the post-tx state.
+    /// @param events The events and parameters emitted during the transaction by the contract this firewall is protecting (VulnNFT). for more details on data structure, check the TransactionEventsLib.sol
     /// for more details on Firewall Contracts and  our Decentralized Firewall check https://docs.ipsprotocol.xyz
-    function runSecurityChecks(
+    function runFirewallContract(
         address caller,
         address snapshotAddr,
         address contractAddr,
         TransactionEventsLib.EventData[] memory events
     ) public override {
+      
         // // snapshotContract is the contract in its state from before the start of the transaction.
-        BLERC20 snapshotContract = BLERC20(snapshotAddr);
+        VulnERC20 snapshotContract = VulnERC20(snapshotAddr);
 
         // // currentContract is the current account, with its current state
-        BLERC20 currentContract = BLERC20(contractAddr);
+        VulnERC20 currentContract = VulnERC20(contractAddr);
 
         AllowanceUpdated memory allowUpd = initializeUpdatedAllowance();
         BalanceUpdated memory balUpd = initializeUpdatedBalance();
@@ -110,19 +111,20 @@ contract BLERC20FirewallContract is IPSFirewall {
                 (allowUpd, lad) = processApprovalEvent(events[i], allowUpd);
                 // event array start at 0, but it is the first event.
                 lad.approvalEventNumber = i + 1;
-            }
-            if (events[i].eventSigHash == erc20TransferEventSig) {
+            } else if (events[i].eventSigHash == erc20TransferEventSig) {
                 // This is only required for because of TransferFrom Approval + Transfer event
                 // could be easily simplified with better Event structuring.
                 lad.transferFromEventNumber = i + 1;
-                // event[i] is ERC20Transfer
-                // check for mint event if from it 0x0
+                // event[i] is Transfer
+                
                 (balUpd, allowUpd, lad) = processTransferEvent(
                     events[i],
                     balUpd,
                     allowUpd,
                     lad
                 );
+            } else {
+                revert("untracked event");
             }
         }
         // all the events ara processed in order emission in the EVM during Tx Execution.
@@ -130,8 +132,8 @@ contract BLERC20FirewallContract is IPSFirewall {
         // we compare the final results for:
         // - balances
         // - allowances
-        verifyAllowanceConsistency(currentContract, allowUpd);
         verifyBalanceConsistency(currentContract, balUpd);
+        verifyAllowanceConsistency(currentContract, allowUpd);
         //verifyBalanceSumConsistency(currentContract);
         verifyTotalSupplyConsistency(currentContract);
     }
@@ -141,14 +143,17 @@ contract BLERC20FirewallContract is IPSFirewall {
         AllowanceUpdated memory allowUpd
     )
         internal
-        view
+        
         returns (AllowanceUpdated memory, LatestApprovalDetails memory)
     {
+        
         //events.
+        address caller = address(selfEvent.caller);
         address owner = address(uint160(uint256(selfEvent.parameters[0])));
         address spender = address(uint160(uint256(selfEvent.parameters[1])));
         uint newAllowance = uint256(selfEvent.parameters[2]);
         uint prevAllowance = _allowances[owner][spender];
+        
 
         verifyValidApprover(owner);
         allowUpd = updateAllowance(owner, spender, allowUpd);
@@ -201,16 +206,16 @@ contract BLERC20FirewallContract is IPSFirewall {
             verifyTransferPreconditions(from, to, amount);
             balUpd = applyTransferChanges(from, to, amount, balUpd);
         }
-        if (isTransferFrom(caller, from)) {
+        else if (isTransferFrom(caller, from)) {
             verifyTransferFromFollowsApproval(from, to, amount, lad);
             balUpd = applyTransferFromChanges(from, to, amount, balUpd);
         }
-        if (isMint(from)) {
+       else  if (isMint(from)) {
             // here: Minting event
             verifyMintPreconditions(to);
             applyMintChanges(from, to, amount, balUpd);
         }
-        if (isBurn(to)) {
+        else if (isBurn(to)) {
             // here: Burn event
             verifyBurnPreconditions(to);
             updateSupply(amount, false);
@@ -285,7 +290,7 @@ contract BLERC20FirewallContract is IPSFirewall {
                 if (currentAllowance != lad.prevAllowance - amount) {
                     // here: the allowance calculation dont respect the specs.
                     revert(
-                        "ipschainsecurity: Approval deduction inconsistent."
+                        "DecentralizedFirewall: Approval deduction inconsistent."
                     );
                 }
             } else {
@@ -293,7 +298,7 @@ contract BLERC20FirewallContract is IPSFirewall {
                 // and the allowance isnt infinity.
                 // conclusion: the approval should have been exec
                 revert(
-                    "ipschainsecurity: Allowances not updated when using 'transferFrom'"
+                    "DecentralizedFirewall: Allowances not updated when using 'transferFrom'"
                 );
 
                 // here: either the last approval is not
@@ -307,7 +312,7 @@ contract BLERC20FirewallContract is IPSFirewall {
             ) {
                 if (lad.newAllowance != type(uint256).max) {
                     revert(
-                        "ipschainsecurity: Previous approval and current allowance dont match."
+                        "DecentralizedFirewall: Previous approval and current allowance dont match."
                     );
                 }
             }
@@ -429,26 +434,26 @@ contract BLERC20FirewallContract is IPSFirewall {
     }
 
     function verifyValidSender(address from) internal pure {
-        notZero(from, "ipschainsecurity: Invalid sender");
+        notZero(from, "DecentralizedFirewall: Invalid sender");
     }
 
     function verifyValidReceiver(address to) internal pure {
-        notZero(to, "ipschainsecurity: Invalid receiver");
+        notZero(to, "DecentralizedFirewall: Invalid receiver");
     }
 
     // approval
     function verifyValidSpender(address spender) internal pure {
-        notZero(spender, "ipschainsecurity: Invalid Spender");
+        notZero(spender, "DecentralizedFirewall: Invalid Spender");
     }
 
     function verifyValidApprover(address owner) internal pure {
-        notZero(owner, "ipschainsecurity: Invalid Approver");
+        notZero(owner, "DecentralizedFirewall: Invalid Approver");
     }
 
     // given all the allowance events generated during the transaction,
     // we will iterate over them and apply the changes to the invariant state varibles
     function verifyApprovalConsistency(
-        BLERC20 currentContract,
+        VulnERC20 currentContract,
         AllowanceUpdated memory allUpd
     ) internal view {
         // here: invariant varibles updated
@@ -460,13 +465,13 @@ contract BLERC20FirewallContract is IPSFirewall {
                 _allowances[owner][spender] !=
                 currentContract.allowance(owner, spender)
             ) {
-                revert("ipschainsecurity: Invariant: approval not consistent.");
+                revert("DecentralizedFirewall: Invariant: approval not consistent.");
             }
         }
     }
 
     function verifyAllowanceConsistency(
-        BLERC20 currentContract,
+        VulnERC20 currentContract,
         AllowanceUpdated memory allUpd
     ) internal view {
         // validat the allowance
@@ -479,7 +484,7 @@ contract BLERC20FirewallContract is IPSFirewall {
                 _allowances[owner][spender]
             ) {
                 revert(
-                    "ipschainsecurity: updated allowances do not match expected allowances"
+                    "DecentralizedFirewall: updated allowances do not match expected allowances"
                 );
             }
         }
@@ -492,7 +497,7 @@ contract BLERC20FirewallContract is IPSFirewall {
     // Assumption, at the end of the EVM transaction, several Transfers, Mint, Burn events may have been done. After applying all the changes, in order, to the invariant state variables
     // We compare all the accounts that have been modified and compare to the expected state we calculated using the events, stored in the invariant state variables.
     function verifyBalanceConsistency(
-        BLERC20 currentContract,
+        VulnERC20 currentContract,
         BalanceUpdated memory balUpd
     ) internal view {
         for (uint i = 0; i < balUpd.froms.length; i++) {
@@ -509,7 +514,7 @@ contract BLERC20FirewallContract is IPSFirewall {
                 // if they don't match means that the ERC20  contract does not respect specifications.
                 // something went wrong and transaction should not proceed.
                 revert(
-                    "ipschainsecurity: Invariant: balances do not match, balances are not consistent."
+                    "DecentralizedFirewall: Invariant: balances do not match, balances are not consistent."
                 );
             }
         }
@@ -517,19 +522,19 @@ contract BLERC20FirewallContract is IPSFirewall {
 
     function verifySufficientBalance(address from, uint amount) internal view {
         if (_balances[from] < amount) {
-            revert("ipschainsecurity: Invariant: insufficiant Balance ");
+            revert("DecentralizedFirewall: Invariant: insufficiant Balance ");
         }
     }
 
     function verifyTotalSupplyConsistency(
-        BLERC20 currentContract
+        VulnERC20 currentContract
     ) internal view {
         // compare the actual total supply in the erc20 contract
         // to the accumulated supply calculated from the mint events
         if (currentContract.totalSupply() != _supply) {
             // if supply calcaulted from the events and from the contract dont match, it measn the implementation was broken
             revert(
-                "ipschainsecurity: Invariant: total supply is not consistent"
+                "DecentralizedFirewall: Invariant: total supply is not consistent"
             );
         }
     }
@@ -542,7 +547,7 @@ contract BLERC20FirewallContract is IPSFirewall {
     function verifyEnoughBalance(address from, uint amount) internal view {
         if (_balances[from] < amount) {
             revert(
-                "ipschainsecurity: Invariant: insufficient balance for transfer"
+                "DecentralizedFirewall: Invariant: insufficient balance for transfer"
             );
         }
     }
@@ -553,7 +558,7 @@ contract BLERC20FirewallContract is IPSFirewall {
         uint value
     ) internal view {
         if (_allowances[owner][spender] < value) {
-            revert("ipschainsecurity: Invariant: insufficient Allowance");
+            revert("DecentralizedFirewall: Invariant: insufficient Allowance");
         }
     }
 }

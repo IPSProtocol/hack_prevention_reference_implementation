@@ -5,7 +5,7 @@ pragma solidity 0.8.24;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "../IPSFirewallProtected.sol";
 
-contract SafeNFT is ERC721Enumerable,  IPSFirewallProtected {
+contract VulnNFT is ERC721Enumerable,  IPSFirewallProtected {
     uint256 price;
     mapping(address=>bool) public canClaim;
     event Buy(address buyer);
@@ -21,7 +21,7 @@ contract SafeNFT is ERC721Enumerable,  IPSFirewallProtected {
         emit Buy(msg.sender);
     }
 
-    function claim() external {
+    function claim() external payable {
         require(canClaim[msg.sender],"USER_CANT_MINT_BUY_FIRST");
         _safeMint(msg.sender, totalSupply()); 
         canClaim[msg.sender] = false;

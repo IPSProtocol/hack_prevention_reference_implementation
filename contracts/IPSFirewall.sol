@@ -11,7 +11,7 @@ abstract contract IPSFirewall {
     /// @param snapshotAddr The address of a temporary snapshot of the protected contract, representing the state of the contract at the beginning of the transaction.
     /// @param contractAddr The address of the actual contract under protection.
     /// @param events A list of events emitted by the protected contract during the transaction execution.
-    function runSecurityChecks(address caller, address snapshotAddr, address contractAddr, TransactionEventsLib.EventData[] memory events) public virtual;
+    function runFirewallContract(address caller, address snapshotAddr, address contractAddr, TransactionEventsLib.EventData[] memory events) public virtual;
 
     /// @notice This function ensures that IPSFirewalls are correctly recognized.
     /// @dev The only way for us to enforce that the correct functions are implemented in their firewall so that protected contracts have their firewall run.
