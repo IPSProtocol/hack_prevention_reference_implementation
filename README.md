@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository showcases various **hack scenarios** and demonstrates how they can be **avoided** by leveraging our **Firewall Contract**, the core of the **Firewall Layer**. It serves as the reference implementation for documented historical smart contract exploits and includes scripts to reproduce these scenarios. The goal is to highlight how these exploits can be effectively prevented using the **IPSProtocol Decentralized Firewall Technology**, which is pluggable into any EVM-compatible blockchain.
+This repository showcases various **hack scenarios** and demonstrates how they can be **avoided** by leveraging our **Firewall Contract**, the core of the **Decentralized Firewall**. It serves as the reference implementation for documented historical smart contract exploits and includes scripts to reproduce these scenarios. The goal is to highlight how these exploits can be effectively prevented using the **IPSProtocol Decentralized Firewall Technology**, which is pluggable into any EVM-compatible blockchain.
 
 ---
 
@@ -16,9 +16,9 @@ The primary objective of this repository is to **educate and empower developers,
 
 If you're interested in exploring the **Decentralized Firewall** and the **Firewall Layer Vision**, visit the following resources:
 
-- [**Website**](https://ipsprotocol.xyz)  
-- [**User and Concepts Documentation**](https://docs.ipsprotocol.xyz)  
-- [**Explorer**](https://explorer.ipsprotocol.xyz)  
+- [**IPSProtocol Website**](https://ipsprotocol.xyz)  
+- [**User Documentation**](https://docs.ipsprotocol.xyz)  
+- [**Decentralized Firewall Explorer**](https://explorer.ipsprotocol.xyz)  
 
 ---
 
@@ -63,14 +63,18 @@ $ touch .env
 ```
 2. Configure the `.env` file:
 ```
+SEPOLIA_RPC_URL=XXXXX
 DECENTRALIZE_FIREWALL_USERNAME=XXXXX
 DECENTRALIZE_FIREWALL_PASSWORD=XXXXX
 PRIVATE_KEY=XXXXX
 ```
 
 3. Import the variables in the Hardhat configuration file `hardhat.config.js`:
+-`SEPOLIA_RPC_URL` enabling RPC connection with SEPOLIA Testnet. Usually setup with Infura or Alchemy.
+
 - `DECENTRALIZE_FIREWALL_USERNAME` and `DECENTRALIZE_FIREWALL_PASSWORD` should be provided by the **Decentralized Firewall Team**.
 - `PRIVATE_KEY` should be the private key of a wallet you'll be using for testing the Decentralized Firewall Network. The **Decentralized Firewall Team** will send you gas tokens.
+-
 
 The following two variables are used in the `run_nft_reentrancy.js` file:
 - `KEYSTORE_PATH`: This variable specifies the path to the keystore that you have created locally for your private key.
