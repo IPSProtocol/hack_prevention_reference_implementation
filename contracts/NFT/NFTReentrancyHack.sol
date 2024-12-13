@@ -2,11 +2,11 @@
 
 pragma solidity 0.8.24;
 
-contract NFTReentrancyHack{
+contract NFTReentrancyHack {
 
     address public target;
     uint8 public counter;
-    uint8 public nbTokens;
+    uint public nbTokens;
     
 
     constructor(address _target){
@@ -20,7 +20,7 @@ contract NFTReentrancyHack{
     }
 
     function claim(uint _nbTokens) external {
-        nbTokens=_nbTokens
+        nbTokens=_nbTokens;
         (bool success, )  = target.call(abi.encodeWithSignature("claim()"));
         require(success, "Hacking claim NFT failed in claim"); 
     }

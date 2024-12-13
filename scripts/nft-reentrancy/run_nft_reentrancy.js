@@ -1,85 +1,31 @@
 const { ethers } = require("hardhat");
 require('dotenv').config();
 require("@nomicfoundation/hardhat-ethers");
-const fs = require('fs');
 
 
-async function getWallet(hre) {
-
-  const provider = ethers.provider
-
-  const networkName = hre.network.name;
-  let wallet;
-  if (networkName == "hardhat") {
-    [wallet] = await ethers.getSigners()
-
-  }
-  else {
-    wallet = await getAccounts(provider)
-  }
-
-  console.log("1 - Wallet Details")
-  console.log("________________________\n")
-  console.log(`Wallet address: ${await wallet.address} - Balance: ${await provider.getBalance(wallet.address)} `);
-  console.log("________________________")
-  console.log("")
-  console.log("2 - Contracts Details")
-  console.log("________________________\n")
-
-  return wallet
-}
+const { deployFirewall, deployContract, getWallet, logNewLines, DeployTransactionEventsLib } = require("../utils.js");
 
 
 
-async function DeployTransactionEventsLib(wallet) {
-  // Deploy  TransactionEvents library 
-  transactionEventsLib = await ethers.getContractFactory("TransactionEventsLib");
-  transactionEventsLib = await transactionEventsLib.connect(wallet).deploy()
-  await transactionEventsLib.waitForDeployment();
-
-  console.log(`Deployed TransactionEventsLib address: ${transactionEventsLib.target}`);
-  return transactionEventsLib
-
-}
 async function deployNFTFirewall(wallet, transactionEventsLib) {
-  let NFTFirewallContract = await ethers.getContractFactory("NFTFirewallContract", { libraries: { TransactionEventsLib: transactionEventsLib.target } });
-  nftFirewallContract = await NFTFirewallContract.connect(wallet).deploy()
-  await nftFirewallContract.waitForDeployment()
-
-  console.log(`Deployed NFTFirewallContract address: ${nftFirewallContract.target}`);
-  return nftFirewallContract;
+  return await deployFirewall(wallet, "NFTFirewallContract", transactionEventsLib);
 }
 
 async function deployVulnNFT(wallet, nftFirewallContract, nftPrice) {
-  let VulnNFT = await ethers.getContractFactory("VulnNFT");
-  vulnNFT = await VulnNFT.connect(wallet).deploy(nftFirewallContract.target, "Vuln NFT", "VNFT", nftPrice);
-  await vulnNFT.waitForDeployment();
-
-  console.log(`Deployed VulnNFT address: ${vulnNFT.target}`);
-  return vulnNFT
+  return await deployContract(wallet, "VulnNFT", [nftFirewallContract.target, "Vuln NFT", "VNFT", nftPrice]);
 }
-
 
 async function deployNFTReentrancyHack(wallet, vulnNFT) {
-  let NFTReentrancyHack = await ethers.getContractFactory("NFTReentrancyHack");
-  nftReentrancyHack = await NFTReentrancyHack.connect(wallet).deploy(vulnNFT.target);
-  await nftReentrancyHack.waitForDeployment();
 
-  console.log(`Deployed NFTReentrancyHack address: ${nftReentrancyHack.target}`);
-  return nftReentrancyHack
+  return await deployContract(wallet, "NFTReentrancyHack", [vulnNFT.target])
 }
 
 
-function logNewLines() {
-  console.log("________________________")
-  console.log("________________________")
-  console.log("")
-}
 
 
 async function buyNFT(wallet, nftReentrancyHack, nftPrice) {
   try {
-    console.log("3 - Attacker is buying 1 NFT")
+    console.log("3 - Attacker buys 1 NFT")
     console.log("________________________\n")
 
     buyTx = await nftReentrancyHack.connect(wallet).buy({ value: nftPrice });
@@ -102,10 +48,10 @@ async function buyNFT(wallet, nftReentrancyHack, nftPrice) {
     console.log("\n________________________")
   }
 }
-async function claim(wallet, nftReentrancyHack, nbTokens) {
+async function claim(wallet,vulnNFT, nftReentrancyHack, nbTokens) {
   try {
 
-    console.log("4 - Attack vulnerable Claim function!");
+    console.log("4 - Attacks vulnerable Claim Function");
     console.log("________________________\n")
 
     tx = await nftReentrancyHack.connect(wallet).claim(nbTokens);
@@ -136,14 +82,13 @@ async function claim(wallet, nftReentrancyHack, nbTokens) {
 }
 async function main(nbTokens, hre) {
 
-
   const nftPrice = 2
 
-  let wallet = await  getWallet(hre)
+  let wallet = await getWallet(hre)
 
   // Deploy Contracts
   let transactionEventsLib = await DeployTransactionEventsLib(wallet)
-  let nftFirewallContract = await deployNFTFirewall(wallet,transactionEventsLib)
+  let nftFirewallContract = await deployNFTFirewall(wallet, transactionEventsLib)
   let vulnNFT = await deployVulnNFT(wallet, nftFirewallContract, nftPrice)
   let nftReentrancyHack = await deployNFTReentrancyHack(wallet, vulnNFT)
 
@@ -151,28 +96,11 @@ async function main(nbTokens, hre) {
 
   await buyNFT(wallet, nftReentrancyHack, nftPrice)
 
-  await claim(wallet, nftReentrancyHack, nbTokens)
+  await claim(wallet,vulnNFT, nftReentrancyHack, nbTokens)
 
 }
 
-async function getAccounts(provider) {
 
-  projectWallet = await loadWalletFromKeystore(process.env.KEYSTORE_PATH)
-  projectWallet = await projectWallet.connect(provider)
-
-  return projectWallet
-
-
-}
-async function loadWalletFromKeystore(path) {
-  // Read the keystore file
-  const keystore = fs.readFileSync(path, 'utf8');
-
-  // Decrypt the keystore with the passworfd
-  const password = process.env.LOCAL_KEYSTORE_PASSWORD; // Make sure to keep this secure
-  const wallet = await ethers.Wallet.fromEncryptedJson(keystore, password);
-  return wallet
-}
 
 
 module.exports = { main }; // Ensure the function is exported

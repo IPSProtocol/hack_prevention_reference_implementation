@@ -40,11 +40,15 @@ contract VulnERC20FirewallContract is IPSFirewall {
     uint public _balancesSum = 0;
 
     // balances calculated from the transactions parameters
-    mapping(address account => uint256) private _balances;
+    mapping(address account => uint256) public _balances;
+
+    // balances calculated from the transactions parameters
+    mapping(address owner => mapping(address spender => bool)) public _hasMaxApproval;
+
 
     // allowances calculated from the transactions parameters
-    mapping(address account => mapping(address spender => uint256))
-        private _allowances;
+    mapping(address owner => mapping(address spender => uint256))
+        public _allowances;
 
     // we use accumulator variables and compare the current contract state with the expect values changes.
     // Optimization could be possible by calculating invariants using intermediary snapshots.
@@ -154,6 +158,9 @@ contract VulnERC20FirewallContract is IPSFirewall {
         uint newAllowance = uint256(selfEvent.parameters[2]);
         uint prevAllowance = _allowances[owner][spender];
         
+        if (newAllowance==type(uint256).max){
+            _hasMaxApproval[owner][spender]=true;
+        }
 
         verifyValidApprover(owner);
         allowUpd = updateAllowance(owner, spender, allowUpd);
@@ -274,6 +281,9 @@ contract VulnERC20FirewallContract is IPSFirewall {
         uint amount,
         LatestApprovalDetails memory lad
     ) internal view {
+        if (_hasMaxApproval[owner][spender]){
+            // 
+        }
         address ownerInPrevApprovalEvent = lad.owner;
         address spenderInPrevApprovalEvent = lad.spender;
         uint currentAllowance = _allowances[owner][spender];
