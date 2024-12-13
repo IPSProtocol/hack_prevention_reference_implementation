@@ -71,13 +71,12 @@ PRIVATE_KEY=XXXXX
 
 3. Import the variables in the Hardhat configuration file `hardhat.config.js`:
 
--`SEPOLIA_RPC_URL` enabling RPC connection with SEPOLIA Testnet. Usually setup with Infura or Alchemy.
-
+- `SEPOLIA_RPC_URL` enabling RPC connection with SEPOLIA Testnet. Usually setup with Infura or Alchemy.
 - `DECENTRALIZE_FIREWALL_USERNAME` and `DECENTRALIZE_FIREWALL_PASSWORD` should be provided by the **Decentralized Firewall Team**.
 - `PRIVATE_KEY` should be the private key of a wallet you'll be using for testing the Decentralized Firewall Network. The **Decentralized Firewall Team** will send you gas tokens.
--
 
-The following two variables are used in the `run_nft_reentrancy.js` file:
+
+The following two variables are used in the `run_nft_reentancy.js` file:
 - `KEYSTORE_PATH`: This variable specifies the path to the keystore that you have created locally for your private key.
 - `LOCAL_KEYSTORE_PASSWORD`: This variable holds the password required to access the keystore and retrieve your private key.
 

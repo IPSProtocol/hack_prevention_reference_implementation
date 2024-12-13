@@ -3,28 +3,14 @@ require("@openzeppelin/hardhat-upgrades");
 require("@nomicfoundation/hardhat-ethers");
 // require("@nomiclabs/hardhat-etherscan");
 require('dotenv').config();
+// require("./tasks/create-keystore");
+require("./tasks/hack-nft");
+require("./tasks/hack-erc20");
 
 
-task("hack-nft", "run the nft hack flow")
-  .addParam("tokens", "The Number of tokens the Hacker will obtain.")
-  .setAction(async (taskArgs, hre) => {
-    const { tokens } = taskArgs; // Extract lowercase parameter
-    // Validate tokens with meaningful feedback
-    if (tokens <= 0 || tokens >= 61) {
-      console.error("Error: The number of tokens must be between 1 and 60.");
-      return; // Exit the task early if invalid
-    }
-    const { main } = require("./scripts/nft-reentrancy/run_nft_reentrancy.js");
-    await main(tokens, hre);
-  });
 
-task("hack-erc20", "run the ERC20")
-  .addParam("tokens", "The Number of tokens the Hacker will obtain.")
-  .setAction(async (taskArgs, hre) => {
-    const { tokens } = taskArgs; // Extract lowercase parameter
-    const { main } = require("./scripts/nft-reentrancy/run_nft_reentrancy.js");
-    await main(tokens, hre);
-  });
+
+
 
 
 const { DECENTRALIZED_FIREWALL_USERNAME, DECENTRALIZED_FIREWALL_PASSWORD, SEPOLIA_RPC_URL, PRIVATE_KEY } = process.env;
