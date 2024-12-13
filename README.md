@@ -132,7 +132,7 @@ Running scenarios for now displays information on the terminal about the hack ex
 ```bash
 $ npx hardhat node
 ```
-2. Run the scenarios on Hardhat:
+2. Run the NFT Reentrancy Reference implementation scenario on Hardhat:
 ```bash
 $ npx hardhat hack-nft --network node --tokens 5
 ```
