@@ -8,11 +8,6 @@ require("./tasks/hack-nft");
 require("./tasks/hack-erc20");
 
 
-
-
-
-
-
 const { DECENTRALIZED_FIREWALL_USERNAME, DECENTRALIZED_FIREWALL_PASSWORD, SEPOLIA_RPC_URL, PRIVATE_KEY } = process.env;
 
 /** @type import('hardhat/config').HardhatUserConfig */

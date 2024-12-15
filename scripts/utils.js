@@ -2,6 +2,7 @@
 const fs = require('fs');
 
 async function getWallet(hre) {
+    const keystoreMode = checkEnvironmentVariables();
     const provider = ethers.provider
     const networkName = hre.network.name;
     let wallet;
@@ -9,11 +10,53 @@ async function getWallet(hre) {
         [wallet] = await ethers.getSigners()
     }
     else {
-        wallet = await getAccounts(provider)
+        wallet = await getAccounts(provider, keystoreMode)
     }
 
     return wallet
 }
+function checkEnvironmentVariables() {
+    keystoreMode = false;
+    const {
+        KEYSTORE_PATH,
+        KEYSTORE_PASSWORD,
+        PRIVATE_KEY,
+        DECENTRALIZED_FIREWALL_USERNAME,
+        DECENTRALIZED_FIREWALL_PASSWORD,
+        SEPOLIA_RPC_URL,
+    } = process.env;
+
+    if (KEYSTORE_PATH && KEYSTORE_PASSWORD) {
+        console.log("Keystore is properly configured.");
+        keystoreMode = true;
+    } else {
+        console.log(
+            "Keystore configuration is incomplete. both KEYSTORE_PATH and KEYSTORE_PASSWORD are required."
+        );
+
+        if (PRIVATE_KEY) {
+            console.log("Private key is set and will be used instead.");
+            keystoreMode = false;
+        } else {
+            console.error(
+                "Neither keystore configuration nor private key is set. Please configure the environment variables properly for using Decentralized Firewall Network."
+            );
+        }
+    }
+
+    // Additional logging for other required variables
+    if (!DECENTRALIZED_FIREWALL_USERNAME || !DECENTRALIZED_FIREWALL_PASSWORD) {
+        console.error(
+            "Missing credentials for the Decentralized Firewall. Ensure DECENTRALIZED_FIREWALL_USERNAME and DECENTRALIZED_FIREWALL_PASSWORD are set."
+        );
+    }
+
+    if (!SEPOLIA_RPC_URL) {
+        console.error("Missing SEPOLIA_RPC_URL. Ensure it is set in the environment.");
+    }
+    return keystoreMode;
+}
+
 
 
 async function logWalletDetails(wallet, provider) {
@@ -27,11 +70,15 @@ async function logWalletDetails(wallet, provider) {
 
 }
 
-async function getAccounts(provider) {
-
-    projectWallet = await loadWalletFromKeystore(process.env.KEYSTORE_PATH)
-    projectWallet = await projectWallet.connect(provider)
-
+async function getAccounts(provider, keystoreMode) {
+    let projectWallet;
+    if (keystoreMode) {
+        projectWallet = await loadWalletFromKeystore(process.env.KEYSTORE_PATH)
+        projectWallet = await projectWallet.connect(provider)
+    }
+    else {
+        projectWallet = new ethers.Wallet(process.env.PRIVATE_KEY,provider);
+    }
     return projectWallet
 
 
@@ -41,7 +88,7 @@ async function loadWalletFromKeystore(path) {
     const keystore = fs.readFileSync(path, 'utf8');
 
     // Decrypt the keystore with the passworfd
-    const password = process.env.LOCAL_KEYSTORE_PASSWORD; // Make sure to keep this secure
+    const password = process.env.KEYSTORE_PASSWORD; // Make sure to keep this secure
     const wallet = await ethers.Wallet.fromEncryptedJson(keystore, password);
     return wallet
 }
