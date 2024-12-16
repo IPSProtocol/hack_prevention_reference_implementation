@@ -1,13 +1,12 @@
 const { ethers } = require("hardhat");
 require('dotenv').config();
 
-const fs = require('fs');
 
-const { deployContract, getWallet, DeployTransactionEventsLib, logWalletDetails, verifyFirewallContractSetup } = require("./scripts/utils.js");
+const { deployContract, getWallet, logNewLines, DeployTransactionEventsLib } = require("../utils.js");
 
 async function deployFirewallContract(wallet, transactionEventsLib) {
-  vulnERC20FirewallContract = await ethers.getContractFactory("VulnERC20FirewallContract", { libraries: { TransactionEventsLib: transactionEventsLib.target } });
-  vulnERC20FirewallContract = await vulnERC20FirewallContract.connect(wallet).deploy()
+  VulnERC20FirewallContract = await ethers.getContractFactory("VulnERC20FirewallContract", { libraries: { TransactionEventsLib: transactionEventsLib.target } });
+  vulnERC20FirewallContract = await VulnERC20FirewallContract.connect(wallet).deploy()
 
   await vulnERC20FirewallContract.waitForDeployment()
 
@@ -17,21 +16,23 @@ async function deployFirewallContract(wallet, transactionEventsLib) {
 }
 async function deployMyVulnERC20Token(wallet, vulnERC20FirewallContract, supply) {
   return await deployContract(wallet, "MyVulnERC20", [supply, vulnERC20FirewallContract.target]);
-
 }
 
-async function main() {
+async function deployHackVulnERC20(wallet, vulnERC20) {
+  return await deployContract(wallet, "HackVulnERC20", [vulnERC20.target]);
+}
+
+async function main(hre) {
 
   let myVulnERC20supply = 10000;
 
-  const wallet = await getWallet(ethers.provider);
+  const wallet = await getWallet(hre);
 
-  await logWalletDetails(wallet, ethers.provider)
 
   let transactionEventsLib = await DeployTransactionEventsLib(wallet);
   let vulnERC20FirewallContract = await deployFirewallContract(wallet, transactionEventsLib);
-  let businessLogicERC20 = await deployMyVulnERC20Token(wallet, vulnERC20FirewallContract, myVulnERC20supply);
-  let hackVulnERC20 = await deployHackVulnERC20(wallet, businessLogicERC20);
+  let myVulnERC20Token = await deployMyVulnERC20Token(wallet, vulnERC20FirewallContract, myVulnERC20supply);
+  let hackVulnERC20 = await deployHackVulnERC20(wallet, myVulnERC20Token);
 
 
   // security checks Removed
@@ -47,9 +48,9 @@ async function main() {
     console.log(pentestTx.hash);
     let res = await (pentestTx).wait();
     console.log(res);
-    await getEmittedEvent(ethers.provider, pentestTx.hash)
   }
   catch (error) {
+    console.log(error)
     tx_hash = error.receipt['hash']
     console.log("Tx Hash: " + tx_hash)
     console.log("failed")
@@ -66,29 +67,4 @@ async function main() {
 
 
 
-async function getAccounts(provider) {
-
-
-
-  projectWallet = await loadWalletFromKeystore(process.env.KEYSTORE_PATH)
-  projectWallet = await projectWallet.connect(provider)
-
-  return projectWallet
-
-}
-async function loadWalletFromKeystore(path) {
-  // Read the keystore file
-  const keystore = fs.readFileSync(path, 'utf8');
-
-  // Decrypt the keystore with the passworfd
-  const password = process.env.LOCAL_KEYSTORE_PASSWORD; // Make sure to keep this secure
-  const wallet = await ethers.Wallet.fromEncryptedJson(keystore, password);
-  return wallet
-}
-
-main()
-  .then(() => process.exit(0))
-  .catch(error => {
-    console.error(error);
-    process.exit(1);
-  });
+module.exports = { main }; // Ensure the function is exported

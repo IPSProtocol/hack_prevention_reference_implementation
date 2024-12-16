@@ -16,6 +16,11 @@ async function getWallet(hre) {
     return wallet
 }
 function checkEnvironmentVariables() {
+    // Check if .env file exists
+    if (!fs.existsSync(".env")) {
+        console.error("Error: .env file is missing. Please create a .env file with the required environment variables.");
+        process.exit(1); // Exit with a failure code
+    }
     keystoreMode = false;
     const {
         KEYSTORE_PATH,
@@ -41,6 +46,7 @@ function checkEnvironmentVariables() {
             console.error(
                 "Neither keystore configuration nor private key is set. Please configure the environment variables properly for using Decentralized Firewall Network."
             );
+            process.exit(1); // Exit with a failure code
         }
     }
 
@@ -77,7 +83,7 @@ async function getAccounts(provider, keystoreMode) {
         projectWallet = await projectWallet.connect(provider)
     }
     else {
-        projectWallet = new ethers.Wallet(process.env.PRIVATE_KEY,provider);
+        projectWallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
     }
     return projectWallet
 

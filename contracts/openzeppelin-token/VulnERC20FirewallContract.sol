@@ -99,47 +99,48 @@ contract VulnERC20FirewallContract is IPSFirewall {
     ) public override {
       
         // // snapshotContract is the contract in its state from before the start of the transaction.
-        VulnERC20 snapshotContract = VulnERC20(snapshotAddr);
+        // VulnERC20 snapshotContract = VulnERC20(snapshotAddr);
 
-        // // currentContract is the current account, with its current state
-        VulnERC20 currentContract = VulnERC20(contractAddr);
+        // // // currentContract is the current account, with its current state
+        // VulnERC20 currentContract = VulnERC20(contractAddr);
 
-        AllowanceUpdated memory allowUpd = initializeUpdatedAllowance();
-        BalanceUpdated memory balUpd = initializeUpdatedBalance();
-        LatestApprovalDetails memory lad;
+        // AllowanceUpdated memory allowUpd = initializeUpdatedAllowance();
+        // BalanceUpdated memory balUpd = initializeUpdatedBalance();
+        // LatestApprovalDetails memory lad;
 
-        // evaluate all the Events
-        for (uint256 i = 0; i < events.length; i++) {
-            if (events[i].eventSigHash == erc20ApprovalEventSig) {
-                // here: Approval
-                (allowUpd, lad) = processApprovalEvent(events[i], allowUpd);
-                // event array start at 0, but it is the first event.
-                lad.approvalEventNumber = i + 1;
-            } else if (events[i].eventSigHash == erc20TransferEventSig) {
-                // This is only required for because of TransferFrom Approval + Transfer event
-                // could be easily simplified with better Event structuring.
-                lad.transferFromEventNumber = i + 1;
-                // event[i] is Transfer
+        // // evaluate all the Events
+        // for (uint256 i = 0; i < events.length; i++) {
+        //     if (events[i].eventSigHash == erc20ApprovalEventSig) {
+        //         // here: Approval
+        //         (allowUpd, lad) = processApprovalEvent(events[i], allowUpd);
+        //         // event array start at 0, but it is the first event.
+        //         lad.approvalEventNumber = i + 1;
+        //     } else if (events[i].eventSigHash == erc20TransferEventSig) {
+        //         // This is only required for because of TransferFrom Approval + Transfer event
+        //         // could be easily simplified with better Event structuring.
+        //         lad.transferFromEventNumber = i + 1;
+        //         // event[i] is Transfer
                 
-                (balUpd, allowUpd, lad) = processTransferEvent(
-                    events[i],
-                    balUpd,
-                    allowUpd,
-                    lad
-                );
-            } else {
-                revert("untracked event");
-            }
-        }
-        // all the events ara processed in order emission in the EVM during Tx Execution.
-        // after everything is verified and applied
-        // we compare the final results for:
-        // - balances
-        // - allowances
-        verifyBalanceConsistency(currentContract, balUpd);
-        verifyAllowanceConsistency(currentContract, allowUpd);
-        //verifyBalanceSumConsistency(currentContract);
-        verifyTotalSupplyConsistency(currentContract);
+        //         (balUpd, allowUpd, lad) = processTransferEvent(
+        //             events[i],
+        //             balUpd,
+        //             allowUpd,
+        //             lad
+        //         );
+        //     } else {
+        //         revert("untracked event");
+        //     }
+        // }
+        // // all the events ara processed in order emission in the EVM during Tx Execution.
+        // // after each function call is verified and applied
+        // // we compare the final results for:
+        // // - balances
+        // // - allowances
+        // // - supply
+        // verifyBalanceConsistency(currentContract, balUpd);
+        // verifyAllowanceConsistency(currentContract, allowUpd);
+        // //verifyBalanceSumConsistency(currentContract);
+        // verifyTotalSupplyConsistency(currentContract);
     }
 
     function processApprovalEvent(

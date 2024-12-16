@@ -14,7 +14,7 @@ contract HackVulnERC20 {
 
     // Function: Transfer any amount to a specific address
     function transferToAnyAmount(address to, uint value) public returns (bool) {
-        // should revert with 
+        // should revert with no 
         return vulnERC20.transfer(to, value);
     }
 

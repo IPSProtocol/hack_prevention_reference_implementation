@@ -7,6 +7,9 @@ task("hack-nft", "run the nft hack flow")
       console.error("Error: The number of tokens must be between 1 and 60.");
       return; // Exit the task early if invalid
     }
+    // Ensure contracts are compiled before the task runs
+    await hre.run("compile");
+    
     const { main } = require("../scripts/nft-reentrancy/run_nft_reentrancy.js");
     await main(tokens, hre);
   });

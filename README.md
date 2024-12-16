@@ -1,4 +1,5 @@
-# Decentralized Firewall: Enabling Reliable, Decentralized, Scalable, Deterministic and Unavoidable Hack Prevention for Smart Contracts 
+# Decentralized Firewall 
+## Enabling Reliable, Decentralized, Scalable, Deterministic and Unavoidable Hack Prevention for Smart Contracts 
 
 ## Overview
 

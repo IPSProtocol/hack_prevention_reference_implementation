@@ -6,9 +6,23 @@ require('dotenv').config();
 // require("./tasks/create-keystore");
 require("./tasks/hack-nft");
 require("./tasks/hack-erc20");
+const fs = require("fs");
 
 
 const { DECENTRALIZED_FIREWALL_USERNAME, DECENTRALIZED_FIREWALL_PASSWORD, SEPOLIA_RPC_URL, PRIVATE_KEY } = process.env;
+if (!fs.existsSync("./.env")) {
+  throw new Error(".env file is missing.");
+}
+
+// Check if PRIVATE_KEY is set and valid
+if (!process.env.SEPOLIA_RPC_URL) {
+  throw new Error("SEPOLIA_RPC_URL Sepolia RPC URL variable not set. Either set it or remove the sepolia network configuration.");
+}
+
+// Check if PRIVATE_KEY is set and valid
+if (!process.env.PRIVATE_KEY) {
+  throw new Error("PRIVATE_KEY environment variable not set. either set it or remove it from in the networks configuration.");
+}
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
