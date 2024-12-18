@@ -55,11 +55,11 @@ npm install
 
 ## Hardhat Configuration
 
-#### Envrionment Variables configuration
+#### Environment Variables configuration
 
 1. Ensure that you create an `.env` file in the project root directory containing the following variables:
 ```bash
-$ touch .env
+ touch .env
 ```
 2. Configure the `.env` file:
 ```
